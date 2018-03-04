@@ -1,1 +1,3 @@
 Indsæt links, der er brugbare i denne fil: 
+
+Pixy protocol and code: http://cmucam.org/projects/cmucam5/wiki/Porting_Guide?version=8
