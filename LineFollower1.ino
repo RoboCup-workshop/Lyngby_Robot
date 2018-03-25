@@ -56,10 +56,13 @@ void loop()
   // If there are detect blocks, print them!
   if (blocks && pixy.blocks[i].width > 5 && pixy.blocks[i].height)
   {
-    Vmotorspeed = pow(1.2,pixy.blocks[i].x)+100;
-    Hmotorspeed = pow(1.2,-pixy.blocks[i].x)+100;
+    int LinePositionX = pixy.blocks[i].x - 160;
+    Hmotorspeed = pow(1.04,-(LinePositionX))+100;
+    Vmotorspeed = pow(1.04,LinePositionX)+100;
     motor2.run(Vmotorspeed);
     motor4.run(-Hmotorspeed);
+    Serial.println(Vmotorspeed);
+    //Serial.println(-Hmotorspeed);
   }  
 }
 
