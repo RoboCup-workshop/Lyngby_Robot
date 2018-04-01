@@ -36,6 +36,8 @@ MeMegaPiDCMotor motor3(PORT2A);
 int Vmotorspeed;
 int Hmotorspeed;
 
+unsigned long TurnCount = 0;
+
 void setup()
 {
   Serial.begin(9600);
@@ -53,16 +55,24 @@ void loop()
   // grab blocks!
   blocks = pixy.getBlocks();
   
-  // If there are detect blocks, print them!
-  if (blocks && pixy.blocks[i].width > 5 && pixy.blocks[i].height)
+
+  if (blocks && pixy.blocks[i].width > 200 && pixy.blocks[i].height > 15){
+    Hmotorspeed = 0;
+    Vmotorspeed = 255;
+    motor2.run(-Hmotorspeed);
+    motor4.run(Vmotorspeed);
+
+    TurnCount += 1;
+    Serial.println(TurnCount);
+    } else if (blocks && pixy.blocks[i].width > 5 && pixy.blocks[i].height > 15)
   {
     int LinePositionX = pixy.blocks[i].x - 160;
-    Hmotorspeed = pow(1.04,-(LinePositionX))+100;
-    Vmotorspeed = pow(1.04,LinePositionX)+100;
-    motor2.run(Vmotorspeed);
-    motor4.run(-Hmotorspeed);
-    Serial.println(Vmotorspeed);
+    Hmotorspeed = pow(1.03,-(LinePositionX))+0.2*-LinePositionX+100;
+    Vmotorspeed = pow(1.03,LinePositionX)+0.2*LinePositionX+100;
+    motor2.run(-Hmotorspeed);
+    motor4.run(Vmotorspeed);
     //Serial.println(-Hmotorspeed);
+    //Serial.println(Vmotorspeed);
   }  
 }
 
