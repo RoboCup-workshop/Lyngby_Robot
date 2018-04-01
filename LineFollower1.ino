@@ -40,8 +40,17 @@ int Hmotorspeed;
 
 unsigned long TurnCount = 0;
 
-void setup()
-{
+int LinePositionX = pixy.blocks[i].x - 160;
+
+  static int i = 0;
+  int j;
+  uint16_t blocks;
+  char buf[32]; 
+  // grab blocks!
+  blocks = pixy.getBlocks();
+
+
+void setup() {
   Serial.begin(9600);
   Serial.print("Starting...\n");
 
@@ -49,14 +58,6 @@ void setup()
 }
 
 void loop() {
-  static int i = 0;
-  int j;
-  uint16_t blocks;
-  char buf[32]; 
-  // grab blocks!
-  blocks = pixy.getBlocks();
-  
-
   if (blocks && pixy.blocks[i].width > 200 && pixy.blocks[i].height > 15) {
     
     Hmotorspeed = 0;
@@ -70,8 +71,8 @@ void loop() {
    
     } else if(blocks && pixy.blocks[i].width > 5 && pixy.blocks[i].height > 15) {
         
-        int LinePositionX = pixy.blocks[i].x - 160;
         
+        // 1.03^(+/-LinePositionsX)+0.2*(+/-LinePositionX)+100
         Hmotorspeed = pow(1.03,-(LinePositionX))+0.2*-LinePositionX+100;
         Vmotorspeed = pow(1.03,LinePositionX)+0.2*LinePositionX+100;
         
