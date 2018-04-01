@@ -29,10 +29,12 @@
 
 // This is the main Pixy object 
 Pixy pixy;
+
 MeMegaPiDCMotor motor1(PORT1A);
 MeMegaPiDCMotor motor2(PORT1B); //Venstre
 MeMegaPiDCMotor motor4(PORT2B); //Højre
 MeMegaPiDCMotor motor3(PORT2A);
+
 int Vmotorspeed;
 int Hmotorspeed;
 
@@ -46,8 +48,7 @@ void setup()
   pixy.init();
 }
 
-void loop()
-{ 
+void loop() {
   static int i = 0;
   int j;
   uint16_t blocks;
@@ -56,23 +57,28 @@ void loop()
   blocks = pixy.getBlocks();
   
 
-  if (blocks && pixy.blocks[i].width > 200 && pixy.blocks[i].height > 15){
+  if (blocks && pixy.blocks[i].width > 200 && pixy.blocks[i].height > 15) {
+    
     Hmotorspeed = 0;
     Vmotorspeed = 255;
+    
     motor2.run(-Hmotorspeed);
     motor4.run(Vmotorspeed);
 
     TurnCount += 1;
     Serial.println(TurnCount);
-    } else if (blocks && pixy.blocks[i].width > 5 && pixy.blocks[i].height > 15)
-  {
-    int LinePositionX = pixy.blocks[i].x - 160;
-    Hmotorspeed = pow(1.03,-(LinePositionX))+0.2*-LinePositionX+100;
-    Vmotorspeed = pow(1.03,LinePositionX)+0.2*LinePositionX+100;
-    motor2.run(-Hmotorspeed);
-    motor4.run(Vmotorspeed);
-    //Serial.println(-Hmotorspeed);
-    //Serial.println(Vmotorspeed);
-  }  
+   
+    } else if(blocks && pixy.blocks[i].width > 5 && pixy.blocks[i].height > 15) {
+        
+        int LinePositionX = pixy.blocks[i].x - 160;
+        
+        Hmotorspeed = pow(1.03,-(LinePositionX))+0.2*-LinePositionX+100;
+        Vmotorspeed = pow(1.03,LinePositionX)+0.2*LinePositionX+100;
+        
+        motor2.run(-Hmotorspeed);
+        motor4.run(Vmotorspeed);
+        
+        //Serial.println(-Hmotorspeed);
+        //Serial.println(Vmotorspeed);
+     }  
 }
-
