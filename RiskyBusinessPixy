@@ -1,0 +1,51 @@
+#include <SPI.h>  
+#include <Pixy.h>
+#include "MeMegaPi.h"
+
+// This is the main Pixy object 
+Pixy pixy;
+MeMegaPiDCMotor motor2(PORT1B); //Venstre
+MeMegaPiDCMotor motor4(PORT2B); //Højre
+int Vmotorspeed;
+int Hmotorspeed;
+
+unsigned int TurnsSoFar = 0; //Antal turns robotten har gennemført
+int WidthForTurn = 200;
+
+void setup()
+{
+  Serial.begin(9600);
+  Serial.print("Starting...\n");
+  pixy.init();
+}
+
+void loop()
+{ 
+  static int i = 0;
+  int j;
+  uint16_t blocks;
+  char buf[32]; 
+  // grab blocks!
+  blocks = pixy.getBlocks();
+  int LinePositionX = pixy.blocks[i].x - 160; //-160 er venstre, 160 er højre. NOTE: Kan forskydes eventuelt med en variabel i fremtiden i switchstatementet nedenunder
+  Serial.println(TurnCount);
+  
+if (blocks && pixy.blocks[i].width > WidthForTurn && pixy.blocks[i].height > 15){ //Robotten ser et sving
+  TurnsSoFar += 1; //Tæller op 
+  switch(TurnsSoFar){ //Tester for hvilket sving vi er ved
+    case 1:
+        for(int i = 0; i < 240; i++){ //For loop der gentager koden indeni 240 gange
+        Hmotorspeed = 255;
+        Vmotorspeed = 50;
+        motor2.run(-Hmotorspeed);
+        motor4.run(Vmotorspeed);
+        }
+        break;
+  }
+} else if (blocks && pixy.blocks[i].width > 5 && pixy.blocks[i].height > 15){ //Følg linjen
+    Hmotorspeed = pow(1.03,-(LinePositionX))+0.4*-LinePositionX+170;
+    Vmotorspeed = pow(1.03,LinePositionX)+0.4*LinePositionX+170;
+    motor2.run(-Hmotorspeed);
+    motor4.run(Vmotorspeed);
+  } 
+}
