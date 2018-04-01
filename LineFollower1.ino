@@ -44,11 +44,6 @@ int LinePositionX = pixy.blocks[i].x - 160;
 
   static int i = 0;
   int j;
-  uint16_t blocks;
-  char buf[32]; 
-  // grab blocks!
-  blocks = pixy.getBlocks();
-
 
 void setup() {
   Serial.begin(9600);
@@ -58,6 +53,11 @@ void setup() {
 }
 
 void loop() {
+  uint16_t blocks;
+  char buf[32]; 
+  // grab blocks!
+  blocks = pixy.getBlocks();
+  
   if (blocks && pixy.blocks[i].width > 200 && pixy.blocks[i].height > 15) {
     
     Hmotorspeed = 0;
