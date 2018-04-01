@@ -12,6 +12,9 @@ int Hmotorspeed;
 unsigned int TurnsSoFar = 0; //Antal turns robotten har gennemført
 int WidthForTurn = 200;
 
+// hvor Pixy følger linjen. (-1 = venstre, 0 = midten, 1 = højre)
+int linePlacement = 0;
+
 void setup()
 {
   Serial.begin(9600);
@@ -27,7 +30,7 @@ void loop()
   char buf[32]; 
   // grab blocks!
   blocks = pixy.getBlocks();
-  int LinePositionX = pixy.blocks[i].x - 160; //-160 er venstre, 160 er højre. NOTE: Kan forskydes eventuelt med en variabel i fremtiden i switchstatementet nedenunder
+  int LinePositionX = pixy.blocks[i].x + linePlacement*160; //-160 er venstre, 160 er højre
   Serial.println(TurnCount);
   
 if (blocks && pixy.blocks[i].width > WidthForTurn && pixy.blocks[i].height > 15){ //Robotten ser et sving
