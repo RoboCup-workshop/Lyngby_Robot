@@ -56,6 +56,7 @@ void loop() {
 
       case 2:
         turn90;
+        break;
   }
 
   // Følg linjen normalt
