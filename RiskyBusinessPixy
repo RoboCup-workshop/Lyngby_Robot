@@ -15,15 +15,22 @@ int WidthForTurn = 200;
 // hvor Pixy følger linjen. (-1 = venstre, 0 = midten, 1 = højre)
 int linePlacement = 0;
 
-void setup()
-{
+// Will turn 90 degrees right, could be good with something determing if it should go left instead.
+void turn90() {             // This should be tweaked
+  motor2.run(255);          // a little. Don't know
+  motor4.run(100);          // if it's the best way
+  delay(2000);              // of turning 90 degrees
+  motor2.run(0);
+  motor4.run(0);
+}
+
+void setup() {
   Serial.begin(9600);
   Serial.print("Starting...\n");
   pixy.init();
 }
 
-void loop()
-{ 
+void loop() { 
   static int i = 0;
   int j;
   uint16_t blocks;
@@ -33,22 +40,29 @@ void loop()
   int LinePositionX = pixy.blocks[i].x + linePlacement*160; //-160 er venstre, 160 er højre
   Serial.println(TurnCount);
   
-if (blocks && pixy.blocks[i].width > WidthForTurn && pixy.blocks[i].height > 15){ //Robotten ser et sving
-  TurnsSoFar += 1; //Tæller op 
-  switch(TurnsSoFar){ //Tester for hvilket sving vi er ved
-    case 1:
+  //Robotten ser et sving
+  if (blocks && pixy.blocks[i].width > WidthForTurn && pixy.blocks[i].height > 15) {
+    TurnsSoFar++; //Tæller op med 1 hver gang der ses et sving
+    
+    switch(TurnsSoFar){ //Tester for hvilket sving vi er ved
+      case 1:
         for(int i = 0; i < 240; i++){ //For loop der gentager koden indeni 240 gange
-        Hmotorspeed = 255;
-        Vmotorspeed = 50;
-        motor2.run(-Hmotorspeed);
-        motor4.run(Vmotorspeed);
+          Hmotorspeed = 255;
+          Vmotorspeed = 50;
+          motor2.run(-Hmotorspeed);
+          motor4.run(Vmotorspeed);
         }
         break;
+
+      case 2:
+        turn90;
   }
-} else if (blocks && pixy.blocks[i].width > 5 && pixy.blocks[i].height > 15){ //Følg linjen
-    Hmotorspeed = pow(1.03,-(LinePositionX))+0.4*-LinePositionX+170;
-    Vmotorspeed = pow(1.03,LinePositionX)+0.4*LinePositionX+170;
-    motor2.run(-Hmotorspeed);
-    motor4.run(Vmotorspeed);
+
+  // Følg linjen normalt
+  } else if (blocks && pixy.blocks[i].width > 5 && pixy.blocks[i].height > 15) {
+      Hmotorspeed = pow(1.03,-(LinePositionX))+0.4*-LinePositionX+170;            // Kunne man ikke fjerne de negative tal
+      Vmotorspeed = pow(1.03,LinePositionX)+0.4*LinePositionX+170;                // og sætte Hmotorspeed til positiv?
+      motor2.run(-Hmotorspeed);  /* Hmm */                                        // Virker lidt dobbel negativt
+      motor4.run(Vmotorspeed);
   } 
 }
