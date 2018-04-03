@@ -1,85 +1,96 @@
-//
-// begin license header
-//
-// This file is part of Pixy CMUcam5 or "Pixy" for short
-//
-// All Pixy source code is provided under the terms of the
-// GNU General Public License v2 (http://www.gnu.org/licenses/gpl-2.0.html).
-// Those wishing to use Pixy source code, software and/or
-// technologies under different licensing terms should contact us at
-// cmucam@cs.cmu.edu. Such licensing terms are available for
-// all portions of the Pixy codebase presented here.
-//
-// end license header
-//
-// This sketch is a good place to start if you're just getting started with 
-// Pixy and Arduino.  This program simply prints the detected object blocks 
-// (including color codes) through the serial console.  It uses the Arduino's 
-// ICSP port.  For more information go here:
-//
-// http://cmucam.org/projects/cmucam5/wiki/Hooking_up_Pixy_to_a_Microcontroller_(like_an_Arduino)
-//
-// It prints the detected blocks once per second because printing all of the 
-// blocks for all 50 frames per second would overwhelm the Arduino's serial port.
-//
-   
 #include <SPI.h>  
 #include <Pixy.h>
 #include "MeMegaPi.h"
 
 // This is the main Pixy object 
 Pixy pixy;
-
-MeMegaPiDCMotor motor1(PORT1A);
 MeMegaPiDCMotor motor2(PORT1B); //Venstre
 MeMegaPiDCMotor motor4(PORT2B); //Højre
-MeMegaPiDCMotor motor3(PORT2A);
-
+MeUltrasonicSensor ultraSensor(PORT_8);
 int Vmotorspeed;
 int Hmotorspeed;
+int baseSpeed = 150 ;
 
-unsigned long TurnCount = 0;
+long int start0motor;
 
-int LinePositionX = pixy.blocks[i].x - 160;
+unsigned int TurnsSoFar = 0; //Antal turns robotten har gennemført
+int WidthForTurn = 200; //Den minimumsbredde en linje skal have for at robotten anser det som et sving. Fra 0-320
 
-  static int i = 0;
-  int j;
+// hvor Pixy følger linjen. (-1 = venstre, 0 = midten, 1 = højre)
+int linePlacement = 0; 
+
+// Will turn 90 degrees right, could be good with something determing if it should go left instead.
+void turn90Right() {             // This should be tweaked
+  motor2.run(255);          // a little. Don't know
+  motor4.run(-255);          // if it's the best way
+  delay(2000);              // of turning 90 degrees
+  motor2.run(0);
+  motor4.run(0);
+}
+
+void turnSoftRight() {             // This should be tweaked
+  motor2.run(255);          // a little. Don't know
+  motor4.run(55);          // if it's the best way
+  delay(2000);              // of turning 90 degrees
+  motor2.run(0);
+  motor4.run(0);
+}
 
 void setup() {
   Serial.begin(9600);
   Serial.print("Starting...\n");
-
   pixy.init();
 }
 
-void loop() {
+void loop() { 
+  static int i = 0;
+  int j;
   uint16_t blocks;
   char buf[32]; 
   // grab blocks!
   blocks = pixy.getBlocks();
+  int LinePositionX = pixy.blocks[i].x -160 + linePlacement*160; //-160 er venstre, 160 er højre
+  Serial.println(ultraSensor.distanceCm());
   
-  if (blocks && pixy.blocks[i].width > 200 && pixy.blocks[i].height > 15) {
-    
-    Hmotorspeed = 0;
-    Vmotorspeed = 255;
-    
-    motor2.run(-Hmotorspeed);
-    motor4.run(Vmotorspeed);
+  //Robotten ser et sving
+  if (blocks && pixy.blocks[i].width > WidthForTurn && pixy.blocks[i].height > 3) {
+    switch(TurnsSoFar){ //Tester for hvilket sving vi er ved
+      case 0: //CASE 0 SVING: Ned ad rampen
+          start0motor = millis();
+          while (millis() != start0motor+800){
+            Hmotorspeed = 255;
+            Vmotorspeed = 50;
+            motor2.run(-Hmotorspeed);
+            motor4.run(Vmotorspeed);          
+          }
+        baseSpeed = 60;
+        TurnsSoFar++; //Tæller op med 1 hver gang der ses et sving
+        break;
+      case 1: //Ser lille hvid streg efter at have kørt ned af rampen
+          if (ultraSensor.distanceCm() > 1000) {
+            motor2.run(0);
+            motor4.run(0);
+          } else {
+            start0motor = millis();
+          while (millis() != start0motor+100){
+            Hmotorspeed = 255;
+            Vmotorspeed = 0;
+            motor2.run(-Hmotorspeed);
+            motor4.run(Vmotorspeed);          
+            }
+            baseSpeed = 170;
+            TurnsSoFar++; //Tæller op med 1 hver gang der ses et sving
+          }
+        break;
+          
+        
+  }
 
-    TurnCount += 1;
-    Serial.println(TurnCount);
-   
-    } else if(blocks && pixy.blocks[i].width > 5 && pixy.blocks[i].height > 15) {
-        
-        
-        // 1.03^(+/-LinePositionsX)+0.2*(+/-LinePositionX)+100
-        Hmotorspeed = pow(1.03,-(LinePositionX))+0.2*-LinePositionX+100;
-        Vmotorspeed = pow(1.03,LinePositionX)+0.2*LinePositionX+100;
-        
-        motor2.run(-Hmotorspeed);
-        motor4.run(Vmotorspeed);
-        
-        //Serial.println(-Hmotorspeed);
-        //Serial.println(Vmotorspeed);
-     }  
+  // Følg linjen normalt
+  } else if (blocks && pixy.blocks[i].width > 5 && pixy.blocks[i].height > 15) {
+      Hmotorspeed = pow(1.03,-(LinePositionX))+0.4*-LinePositionX+baseSpeed;            // Kunne man ikke fjerne de negative tal
+      Vmotorspeed = pow(1.03,LinePositionX)+0.4*LinePositionX+baseSpeed;                // og sætte Hmotorspeed til positiv?
+      motor2.run(-Hmotorspeed);  /* Hmm */                                        // Virker lidt dobbel negativt
+      motor4.run(Vmotorspeed);
+  } 
 }
