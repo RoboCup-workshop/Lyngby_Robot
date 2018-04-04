@@ -50,8 +50,8 @@ void loop()
    
   } else if (blocks && pixy.blocks[i].width > 5 && pixy.blocks[i].height > 15) //Følg linjen
   {
-    Hmotorspeed = pow(1.03,-(LinePositionX))+0.4*-LinePositionX+170;
-    Vmotorspeed = pow(1.03,LinePositionX)+0.4*LinePositionX+170;
+    Hmotorspeed = pow(1.03,-(LinePositionX))+0.6*-LinePositionX+170;
+    Vmotorspeed = pow(1.03,LinePositionX)+0.6*LinePositionX+170;
     motor2.run(-Hmotorspeed);
     motor4.run(Vmotorspeed);
     //Serial.println(-Hmotorspeed);
