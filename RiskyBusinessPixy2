@@ -19,6 +19,10 @@ int WidthForTurn = 200; //Den minimumsbredde en linje skal have for at robotten 
 // hvor Pixy følger linjen. (-1 = venstre, 0 = midten, 1 = højre)
 int linePlacement = 0; 
 
+// ekstra variables to determin things
+int var1 = 0;
+int var2 = 0;
+
 // Will turn 90 degrees right, could be good with something determing if it should go left instead.
 void turn90Right() {             // This should be tweaked
   motor2.run(255);          // a little. Don't know
@@ -67,24 +71,65 @@ void loop() {
         TurnsSoFar++; //Tæller op med 1 hver gang der ses et sving
         break;
       case 1: //Ser lille hvid streg efter at have kørt ned af rampen
-          if (ultraSensor.distanceCm() > 1000) {
+          if (var1 = 0) {
+            motor2.run(-100);
+            motor4.run(-100);
+            delay(750);
             motor2.run(0);
             motor4.run(0);
-          } else {
-            start0motor = millis();
-          while (millis() != start0motor+100){
-            Hmotorspeed = 255;
-            Vmotorspeed = 0;
-            motor2.run(-Hmotorspeed);
-            motor4.run(Vmotorspeed);          
-            }
-            baseSpeed = 170;
-            TurnsSoFar++; //Tæller op med 1 hver gang der ses et sving
+            var1 = 1;
+          }
+          if (var1 = 1) {
+            while (ultraSensor.distanceCm()>100) {
+              motor2.run(0);
+              motor4.run(0);
+          }
+          if(ultraSensor.distanceCm()<99){
+              delay(2000);
+              motor2.run(-Hmotorspeed);
+              motor4.run(Vmotorspeed); 
+              delay(100);           
+              break;
+            
+       /*     } else {
+              start0motor = millis();
+            while (millis() != start0motor+100){
+              Hmotorspeed = 255;
+              Vmotorspeed = 0;
+              motor2.run(-Hmotorspeed);
+              motor4.run(Vmotorspeed);          
+         */     
+              }
+              baseSpeed = 170;
+              TurnsSoFar++; //Tæller op med 1 hver gang der ses et sving
           }
         break;
-          
+
+      case 2:
+        motor2.run(-170);
+        motor4.run(-170);
+        delay(1200);
+        motor2.run(0);
+        motor4.run(0);
         
-  }
+        TurnsSoFar++;
+
+      case 3:
+        motor2.run(-170);
+        motor4.run(-170);
+        delay(1200);
+        motor2.run(0);
+        motor4.run(0);
+        
+        TurnsSoFar++;
+      
+      default:
+      Hmotorspeed = baseSpeed;
+      Vmotorspeed = baseSpeed;
+      motor2.run(-Hmotorspeed);
+      motor4.run(Vmotorspeed);
+      delay(1100);
+    }
 
   // Følg linjen normalt
   } else if (blocks && pixy.blocks[i].width > 5 && pixy.blocks[i].height > 15) {
@@ -92,5 +137,21 @@ void loop() {
       Vmotorspeed = pow(1.03,LinePositionX)+0.4*LinePositionX+baseSpeed;                // og sætte Hmotorspeed til positiv?
       motor2.run(-Hmotorspeed);  /* Hmm */                                        // Virker lidt dobbel negativt
       motor4.run(Vmotorspeed);
+
+      if(TurnsSoFar = 4) {
+        if (ultraSensor.distanceCm() > 20) {
+          if (var2 = 1) {
+            Hmotorspeed = 255;
+            Vmotorspeed = 255;
+            motor2.run(-Hmotorspeed);
+            motor4.run(Vmotorspeed);
+          }
+        }
+        
+        if (ultraSensor.distanceCm() < 17) {
+        var2 = 1;
+        
+        }
+      }
   } 
 }
