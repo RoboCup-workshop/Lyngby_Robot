@@ -14,10 +14,10 @@ unsigned int height = 0;        //object's height
 unsigned int area = 0;
 unsigned int newarea = 0;
 int Xmin = 70;                  //min x position
-int Xmax = 200;                 //max x position
+int Xmax = 200;                   //max x position
 int maxArea = 0;
 int minArea = 0;
-int Speed = 70;                 //speed for motor
+int Speed = 130;                 //speed for motor
 static int i = 0;
 
 void setup()
@@ -111,4 +111,4 @@ void scan()
   y = pixy.blocks[i].y;                    //get y position
   width = pixy.blocks[i].width;            //get width
   height = pixy.blocks[i].height;          //get height
-  }  
+  }
